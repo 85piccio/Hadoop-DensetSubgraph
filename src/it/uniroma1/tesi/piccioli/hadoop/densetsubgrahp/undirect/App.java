@@ -34,6 +34,8 @@ public class App extends Configured implements Tool {
 
 		double bestDensita = Long.MIN_VALUE;
 
+		conf.setDouble("EPSILON", 0.001);
+
 		// path job1
 		Path pathGrafoIniziale = new Path(args[0]);
 		Path pathResultTmpDegree = new Path("/tmp_1");
@@ -71,16 +73,13 @@ public class App extends Configured implements Tool {
 			// boolean res = degreeJob.waitForCompletion(true);
 			degreeJob.waitForCompletion(true);
 
-			
 			// edges diviso 2 --> arco undirect rappresentato da 2 archi direct
-			long totEdge = degreeJob.getCounters().findCounter(EDGE.EDGES).getValue() / 2;
-			long totVertici = degreeJob.getCounters().findCounter(VERTICI.VERTICI).getValue();
+			Long totEdge = degreeJob.getCounters().findCounter(EDGE.EDGES).getValue() / 2;
+			Long totVertici = degreeJob.getCounters().findCounter(VERTICI.VERTICI).getValue();
 			conf.setLong("EDGES", totEdge);
 			conf.setLong("VERTICI", totVertici);
 
 			System.out.println(totEdge + " " + totVertici);
-
-			
 
 			// se finiscono edge o non ci sono cambiamenti
 			if (totVertici == 0 || totEdge == 0 || totEdge == sEdge) {
@@ -88,20 +87,20 @@ public class App extends Configured implements Tool {
 				System.out.println("best " + bestDensita);
 				return 0;
 			}
-			
-			double currDensita = totEdge / totVertici;
+
+			double currDensita = totEdge.doubleValue() / totVertici.doubleValue();
 			if (bestDensita < currDensita) {
 				bestDensita = currDensita;
 				// TODO: salvare lista edge best
 			}
-			sEdge = totEdge;//aggiorno var controllo num edge
+			sEdge = totEdge;// aggiorno var controllo num edge
 
 			/*
 			 * secondo Job elimino nodi "prima colonna" con degree sotto soglia
 			 */
 
-			Job deleteJob = Job.getInstance(conf);			
-			
+			Job deleteJob = Job.getInstance(conf);
+
 			MultipleInputs.addInputPath(deleteJob, pathResultTmpDelete, KeyValueTextInputFormat.class,
 					DegreeMapper.class);
 			MultipleInputs.addInputPath(deleteJob, pathResultTmpDegree, KeyValueTextInputFormat.class,

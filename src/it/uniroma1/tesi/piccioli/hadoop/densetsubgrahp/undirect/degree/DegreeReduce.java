@@ -26,8 +26,7 @@ public class DegreeReduce extends Reducer<Text, Text, Text, Text> {
 		}
 		//incremento contatori vertici e edges
 		context.getCounter(VERTICI.VERTICI).increment(1);
-		context.getCounter(EDGE.EDGES).increment(new Long (size));
-		
+		context.getCounter(EDGE.EDGES).increment(new Long (size));		
 		
 		context.write(key, new Text(size.toString()));
 	}
