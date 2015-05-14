@@ -21,6 +21,14 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
+/*
+ * 
+ * Densest Subgraph in Streaming and MapReduce
+ * Bahman Bahmani, Ravi Kumar, Sergei, Vassilvitskii
+ * 
+ * */
+
+
 public class App extends Configured implements Tool {
 
 	long sEdge = Long.MAX_VALUE;

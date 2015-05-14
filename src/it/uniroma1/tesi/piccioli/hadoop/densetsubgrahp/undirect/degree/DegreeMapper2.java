@@ -11,6 +11,5 @@ public class DegreeMapper2  extends Mapper<Text, Text, Text, Text> {
 	protected void map(Text key, Text value, Context context) throws IOException, InterruptedException {
 		context.write(value, key);
 	}
-
 }
 
