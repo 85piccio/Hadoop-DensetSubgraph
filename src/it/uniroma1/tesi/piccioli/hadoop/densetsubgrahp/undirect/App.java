@@ -7,6 +7,7 @@ import it.uniroma1.tesi.piccioli.hadoop.densetsubgrahp.undirect.delete.DeleteMap
 import it.uniroma1.tesi.piccioli.hadoop.densetsubgrahp.undirect.delete.DeleteReduce;
 import it.uniroma1.tesi.piccioli.hadoop.densetsubgrahp.undirect.delete.DeleteReduce2;
 
+import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
@@ -28,7 +29,6 @@ import org.apache.hadoop.util.ToolRunner;
  * 
  * */
 
-
 public class App extends Configured implements Tool {
 
 	long sEdge = Long.MAX_VALUE;
@@ -46,17 +46,17 @@ public class App extends Configured implements Tool {
 
 		// path job1
 		Path pathGrafoIniziale = new Path(args[0]);
+		Path pathNodiDeneset = new Path(args[1]);
 		Path pathResultTmpDegree = new Path("/tmp_1");
 		// Path pathResultTmpDelete = new Path("/tmp_2");
 		Path pathResultTmpDelete2 = new Path("/tmp_3");
 		Path pathResultTmpDelete = pathGrafoIniziale;
-
+		
+		FileSystem fs = FileSystem.get(conf);
+		
 		while (true) {
-
-			FileSystem fs = FileSystem.get(conf);
-
 			/*
-			 * Primo Job Input Calcolo degre nodi, totale nodi e totale archi
+			 * Primo Job Input Calcolo degree nodi, totale nodi e totale archi
 			 */
 
 			Job degreeJob = Job.getInstance(conf);
@@ -93,6 +93,10 @@ public class App extends Configured implements Tool {
 			if (totVertici == 0 || totEdge == 0 || totEdge == sEdge) {
 				// Stampo best
 				System.out.println("best " + bestDensita);
+
+				fs.delete(pathResultTmpDegree, true);
+				fs.delete(pathResultTmpDelete, true);
+				fs.delete(pathResultTmpDelete2, true);
 				return 0;
 			}
 
@@ -100,6 +104,12 @@ public class App extends Configured implements Tool {
 			if (bestDensita < currDensita) {
 				bestDensita = currDensita;
 				// TODO: salvare lista edge best
+				fs.delete(pathNodiDeneset,true);
+				FileUtil.copy(fs, pathResultTmpDegree, fs, pathNodiDeneset, false, true, conf);
+				
+			
+
+
 			}
 			sEdge = totEdge;// aggiorno var controllo num edge
 
@@ -141,7 +151,7 @@ public class App extends Configured implements Tool {
 			}
 
 			/*
-			 * Terzo Job elimino nodi "prima colonna" con degree sotto soglia
+			 * Terzo Job elimino nodi "seconda colonna" con degree sotto soglia
 			 */
 
 			Job deleteJob2 = Job.getInstance(conf);
@@ -169,15 +179,14 @@ public class App extends Configured implements Tool {
 			tmp = pathResultTmpDelete2;
 			pathResultTmpDelete2 = pathResultTmpDelete;
 			pathResultTmpDelete = tmp;
-
 		}
 
 	}
 
 	public static void main(String[] args) throws Exception {
-		if (args.length < 2) {
-			System.exit(printUsage());
-		}
+		// if (args.length < 2) {
+		// System.exit(printUsage());
+		// }
 
 		Configuration conf = new Configuration();
 
